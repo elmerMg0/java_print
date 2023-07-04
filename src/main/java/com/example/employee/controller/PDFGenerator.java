@@ -59,7 +59,10 @@ public class PDFGenerator {
     public void createPDFKitchen(String printerName) throws IOException, PrinterException {
         createItems();
         fillItems();
-        createTotalPrice();
+        String place = (String) saleInfo.get("place");
+        if(place.equals(SALON)){
+            createTotalPrice();
+        }
         closeContentStream("order");
         printPDF(printerName);
     }
@@ -123,6 +126,15 @@ public class PDFGenerator {
 
     protected void createItems() throws IOException {
         height = page.getMediaBox().getHeight();
+        String place = (String) saleInfo.get("place");
+        String customer = (String) saleInfo.get("cliente");
+        if(place.equals(COCINA)){
+            contentStream.beginText();
+            contentStream.setFont(PDType1Font.HELVETICA, 11);
+            contentStream.newLineAtOffset(65, height - 10);
+            contentStream.showText("Cliente: " + customer );
+            contentStream.endText();
+        }
        
      /*    contentStream.beginText();
         contentStream.setFont(PDType1Font.HELVETICA, 9);
@@ -134,7 +146,7 @@ public class PDFGenerator {
         String username = (String) saleInfo.get("username");
         contentStream.beginText();
         contentStream.newLineAtOffset(25, height - 25);
-        contentStream.setFont(PDType1Font.HELVETICA, 15);
+        contentStream.setFont(PDType1Font.HELVETICA, 10);
         contentStream.showText(username);
         contentStream.endText();
 
@@ -149,23 +161,21 @@ public class PDFGenerator {
         contentStream.beginText();
         contentStream.setFont(PDType1Font.HELVETICA, 20);
         contentStream.newLineAtOffset(25, height - 50);
-        contentStream.showText("Mesa: "+ nroMesa);
+        contentStream.showText("Mesa: "+ nroMesa+"  ");
         
-        String place = (String) saleInfo.get("place");
-        System.out.println(place);
-        if(place == COCINA){
+        if(place.equals(COCINA)){
             contentStream.showText("Nro: " + nroPedido );
         }
         contentStream.endText();
 
         Table myTable = Table.builder()
-                .addColumnsOfWidth(95, 45, 45)
+                .addColumnsOfWidth(165, 20, 55)
                 .padding(2)
                 .font(PDType1Font.HELVETICA_BOLD)
-                .addRow(Row.builder().fontSize(9)
+                .addRow(Row.builder().fontSize(10)
                         .add(TextCell.builder().text("Item").borderWidth(0.5F).borderColor(Color.black)
                                 .backgroundColor(Color.WHITE).horizontalAlignment(HorizontalAlignment.CENTER).build())
-                        .add(TextCell.builder().text("Cant.").borderWidth(0.5f).borderColor(Color.black)
+                        .add(TextCell.builder().text("Ca.").borderWidth(0.5f).borderColor(Color.black)
                                 .backgroundColor(Color.WHITE).horizontalAlignment(HorizontalAlignment.CENTER).build())
                         .add(TextCell.builder().text("Total").borderWidth(0.5f).borderColor(Color.black)
                                 .backgroundColor(Color.WHITE).horizontalAlignment(HorizontalAlignment.CENTER).build())
@@ -184,8 +194,8 @@ public class PDFGenerator {
     protected void fillItems() {
         AtomicReference<Double> finaltotal = new AtomicReference<>((double) 0);
         Object tableBuilder = Table.builder()
-                .addColumnsOfWidth(95, 45, 45)
-                .padding(5)
+                .addColumnsOfWidth(160, 25, 55)
+                .padding(4)
                 .font(PDType1Font.HELVETICA)
                 .borderColor(Color.WHITE);
 
@@ -198,10 +208,11 @@ public class PDFGenerator {
             Integer precioVenta = (Integer) item.get("precio_venta");
 
 
-            double total = cantidad.doubleValue() * precioVenta.doubleValue();
-            finaltotal.set(finaltotal.get() + total);
+            double totalDouble = cantidad.doubleValue() * precioVenta.doubleValue();
+            String total = String.format("%.0f", totalDouble);
+            finaltotal.set(finaltotal.get() + totalDouble);
 
-            ((TableBuilder) tableBuilder).addRow(Row.builder().fontSize(9)
+            ((TableBuilder) tableBuilder).addRow(Row.builder().fontSize(16)
                     .add(TextCell.builder().text(item.get("nombre") + "").borderWidth(0.5F)
                             .backgroundColor(Color.WHITE).horizontalAlignment(HorizontalAlignment.LEFT).build())
                     .add(TextCell.builder().text( item.get("cantidad") + "").borderWidth(0.5F)
@@ -225,25 +236,25 @@ public class PDFGenerator {
     protected void createTotalPrice() throws IOException {
         List<Map<String, Object>> orders = (List<Map<String, Object>>) saleInfo.get("orderDetail");
         PDFont font= PDType1Font.HELVETICA;
-        total_height = height - 80 - (20 *  orders.size());
-        int size = 9;
+        total_height = height - 80 - (26 *  orders.size());
+        int size = 16;
         float paddingRight = 0;
         float pagewidth = page.getMediaBox().getWidth();
 
         float text_width = (font.getStringWidth(String.valueOf(totalPrice)) / 1000.0f) * size;
         float x = pagewidth - ((paddingRight * 2) + text_width);
-        putItemPdf(x - 398, total_height, String.valueOf(totalPrice), PDType1Font.HELVETICA);
+        putItemPdf(x - 365, total_height, String.valueOf(totalPrice), PDType1Font.HELVETICA);
 
         String texto = "total:";
         float text_width2 = (font.getStringWidth(texto) / 1000.0f) * size;
         float x2 = pagewidth - ((paddingRight * 2) + text_width2);
-        putItemPdf(x2-435, total_height, texto, PDType1Font.HELVETICA_BOLD);
+        putItemPdf(x2- 417, total_height, texto, PDType1Font.HELVETICA_BOLD);
     }
 
     protected void putItemPdf(float posX, float posY, String texto, PDFont font) throws IOException {
         contentStream.beginText();
         contentStream.newLineAtOffset(posX, posY);
-        contentStream.setFont(font, 9);
+        contentStream.setFont(font, 16);
         contentStream.showText(texto);
         contentStream.endText();
     }
