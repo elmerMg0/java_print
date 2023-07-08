@@ -96,7 +96,7 @@ public class PDFGenerator {
         Paper paper = new Paper();
 
         
-        paper.setSize(200, 120); // Establecer el tamaño de la página en puntos (1 punto = 1/72 de pulgada)
+        paper.setSize(200, 500); // Establecer el tamaño de la página en puntos (1 punto = 1/72 de pulgada)
 
         // Establecer el tamaño de la imagen imprimible dentro de la página
         double scale = 1; // Escala personalizada (por ejemplo, 1.5 significa aumentar el tamaño en un 50%)
@@ -129,10 +129,11 @@ public class PDFGenerator {
         g2d.drawString(customerText, 0, font12.getSize());
 
         // Establecer la fuente y el tamaño de la letra para el texto "username: {user}   fecha: {fechaActual}"
-        //Font font12Bold = font12.deriveFont(Font.BOLD);
-        g2d.setFont(font12);
+        Font font12Bold = new Font("Arial", Font.PLAIN, 10);
+        g2d.setFont(font12Bold);
         String user = (String)saleInfo.get("username");
-        String dateCurrently = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
+       // String dateCurrently = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
+        String dateCurrently = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
         String userInfoText = "username: " + user + "   fecha: " + dateCurrently;
         g2d.drawString(userInfoText, 0, 2 * font12.getSize());
 
@@ -140,7 +141,7 @@ public class PDFGenerator {
         Font font16 = new Font("Arial", Font.PLAIN, 16);
         g2d.setFont(font16);
         String table = (String)saleInfo.get("nroMesa");
-        String nroPedido = (String)saleInfo.get("nroPedido");
+        int nroPedido = (Integer)saleInfo.get("nroPedido");
         String mesaText = "Mesa: " + table;
         if(place.equals(COCINA)){
             mesaText += " Nro: " + nroPedido;
